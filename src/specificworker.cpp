@@ -18,6 +18,7 @@
  */
  
  #include "specificworker.h"
+#include <boost/concept_check.hpp>
 
 /**
 * \brief Default constructor
@@ -39,8 +40,8 @@ void SpecificWorker::compute( )
 {
   TLaserData laser_data = laser_proxy->getLaserData();
 
-  int tiempoGiro;
-  int velocidadGiro;
+  int tiempoGirando;
+  int velocidad;
   
  
   bool avanzando = true;
@@ -48,60 +49,29 @@ void SpecificWorker::compute( )
   try{
 	
 	switch(S){
+		case STATE::PREPARARAVANZAR:	
+			prepararAvanzar();
+			break;
 		case STATE::AVANZAR:	
-			if(comprobarChoque(laser_data)){
-				S=STATE::PARAR;
-				cout << "Estoy avanzando y me choco" << endl;
-			}
-			else
-				avanzar();
-			
+			avanzar(laser_data);
 			break;
 			
 		case STATE::PARAR:
-			cout << "Reinicio reloj" << endl;
-			
-			differentialrobot_proxy->stopBase();
-			S = STATE::DIRECCIONGIRAR;
-			cout << "Me he chocado y me paro" << endl;
+			parar();
 			break;
 			
 		case STATE::DIRECCIONGIRAR:
-			velocidadGiro = qrand() % ((1 + 1) - 0) + 0;
-			if(velocidadGiro == 0)
-				velocidadGiro = -1;
-			S=STATE::PREPARARGIRAR;
-			
-			cout<<"Calculo velocidad de Giro: "<<velocidadGiro<<endl;
-			break;
+			velocidad = velocidadGiro();
 			
 		case STATE::PREPARARGIRAR:		
-			temporizador.restart();
-			tiempoGiro = (qrand() % ((700 + 1) - 100) + 100);
-			cout<<" Calculo tiempo de giro: "<<tiempoGiro<<endl;
-			S=STATE::GIRAR;
+			tiempoGirando = tiempoGiro();
 			
 			break;
 
 		case STATE::GIRAR:
-			cout << "Estoy girando" << endl;
-			if(temporizador.elapsed() < tiempoGiro){ //100-700
-				differentialrobot_proxy->setSpeedBase(0,velocidadGiro);
-				cout <<"Tiempo:" << temporizador.elapsed() << endl;
-				
-				
-			}
-			else if (comprobarChoque(laser_data)){
-				differentialrobot_proxy->stopBase();	
-				S=STATE::PREPARARGIRAR;
-					
-			}
-			
-			else{ 
-				differentialrobot_proxy->stopBase();
-				S=STATE::AVANZAR;
-			}
+             accionGirar(tiempoGirando, velocidad,laser_data);
 			break;  
+			
 			
 		
 	}
@@ -124,16 +94,50 @@ bool SpecificWorker::comprobarChoque(TLaserData laser_data){
 	return false;	
 }
 
-void SpecificWorker::rotar(){
-		
+int SpecificWorker::tiempoGiro(){
+	temporizador.restart();
+	int tiempoGiro = (qrand() % ((700 + 1) - 100) + 100);
+	S=STATE::GIRAR;
+	return tiempoGiro;
 }
 
-void SpecificWorker::avanzar(){
-	differentialrobot_proxy->setSpeedBase(300,0);
+int SpecificWorker::velocidadGiro(){
+	int	velocidadGiro = qrand() % ((1 + 1) - 0) + 0;
+		if(velocidadGiro == 0)
+			velocidadGiro = -1;
+		S=STATE::PREPARARGIRAR;
+		return velocidadGiro;
 }
 
+void SpecificWorker::parar(){
+	 differentialrobot_proxy->stopBase();
+	 S = STATE::DIRECCIONGIRAR;
+}
+void SpecificWorker::avanzar(TLaserData laser_data){			
+	if(comprobarChoque(laser_data)){
+		S=STATE::PARAR;
+	}
+	else
+		differentialrobot_proxy->setSpeedBase(300,0);
+}
 
+void SpecificWorker::accionGirar(int tiempoGiro, int velocidad,TLaserData laser_data){
+	if(temporizador.elapsed() < tiempoGiro){ //100-700
+		differentialrobot_proxy->setSpeedBase(0,velocidad);	
+	}
+	else if (comprobarChoque(laser_data)){
+		S=STATE::PREPARARGIRAR;
+	}
+			
+	else{ 
+        S=STATE::PREPARARAVANZAR;
+	}
+}
 
+void SpecificWorker::prepararAvanzar(){
+	differentialrobot_proxy->stopBase();
+	S=STATE::AVANZAR;
+}
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 	timer.start(Period);

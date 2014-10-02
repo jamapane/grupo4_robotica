@@ -29,7 +29,7 @@
 class SpecificWorker : public GenericWorker
 {
 	
-	enum class STATE {AVANZAR,PARAR,GIRAR,IDLE, PREPARARGIRAR,DIRECCIONGIRAR};
+	enum class STATE {AVANZAR,PARAR,GIRAR,PREPARARGIRAR,DIRECCIONGIRAR,PREPARARAVANZAR};
 	private:
 		QTime temporizador;
 		STATE S = STATE::AVANZAR;
@@ -44,8 +44,12 @@ public:
 public slots:
  	void compute(); 
 	bool comprobarChoque(TLaserData laser_data);
-	void rotar();
-	void avanzar();
+	void parar();
+	int velocidadGiro();
+	int tiempoGiro();
+	void avanzar(TLaserData laser_data);
+	void accionGirar(int tiempoGiro, int velocidad,TLaserData laser_data);
+	void prepararAvanzar();
 };
 
 #endif

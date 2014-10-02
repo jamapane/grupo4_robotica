@@ -22,7 +22,7 @@ static const uint qt_meta_data_SpecificWorker[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -33,7 +33,11 @@ static const uint qt_meta_data_SpecificWorker[] = {
       16,   15,   15,   15, 0x0a,
       42,   31,   26,   15, 0x0a,
       70,   15,   15,   15, 0x0a,
-      78,   15,   15,   15, 0x0a,
+      82,   15,   78,   15, 0x0a,
+      98,   15,   78,   15, 0x0a,
+     111,   31,   15,   15, 0x0a,
+     163,  131,   15,   15, 0x0a,
+     195,   15,   15,   15, 0x0a,
 
        0        // eod
 };
@@ -41,7 +45,10 @@ static const uint qt_meta_data_SpecificWorker[] = {
 static const char qt_meta_stringdata_SpecificWorker[] = {
     "SpecificWorker\0\0compute()\0bool\0"
     "laser_data\0comprobarChoque(TLaserData)\0"
-    "rotar()\0avanzar()\0"
+    "parar()\0int\0velocidadGiro()\0tiempoGiro()\0"
+    "avanzar(TLaserData)\0tiempoGiro,velocidad,laser_data\0"
+    "accionGirar(int,int,TLaserData)\0"
+    "prepararAvanzar()\0"
 };
 
 void SpecificWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -53,8 +60,14 @@ void SpecificWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 0: _t->compute(); break;
         case 1: { bool _r = _t->comprobarChoque((*reinterpret_cast< TLaserData(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< bool*>(_a[0]) = _r; }  break;
-        case 2: _t->rotar(); break;
-        case 3: _t->avanzar(); break;
+        case 2: _t->parar(); break;
+        case 3: { int _r = _t->velocidadGiro();
+            if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
+        case 4: { int _r = _t->tiempoGiro();
+            if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
+        case 5: _t->avanzar((*reinterpret_cast< TLaserData(*)>(_a[1]))); break;
+        case 6: _t->accionGirar((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< TLaserData(*)>(_a[3]))); break;
+        case 7: _t->prepararAvanzar(); break;
         default: ;
         }
     }
@@ -92,9 +105,9 @@ int SpecificWorker::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 8;
     }
     return _id;
 }
